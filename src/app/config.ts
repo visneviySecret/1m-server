@@ -6,5 +6,6 @@ const envOrigins = (process.env.ALLOWED_ORIGINS ?? "")
 export const allowedOrigins = [
   "http://localhost:3000",
   "https://1m-client.vercel.app",
+  "https://1m-client-git-master-egor-belousovs-projects.vercel.app/",
   ...envOrigins,
 ];

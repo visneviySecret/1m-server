@@ -8,4 +8,5 @@ export type Person = {
 export type GetPersonsParams = {
   page?: unknown;
   limit?: unknown;
+  selected: boolean;
 };

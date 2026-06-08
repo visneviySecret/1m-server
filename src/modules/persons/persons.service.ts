@@ -6,5 +6,5 @@ export async function getPersons(params: GetPersonsParams) {
   const limit = Math.min(1000, Math.max(1, Number(params.limit) || 20));
   const offset = (page - 1) * limit;
 
-  return findPersons(limit, offset);
+  return findPersons(limit, offset, params.selected);
 }

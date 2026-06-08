@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "nodemon --exec tsx index.ts",
+    "db:seed": "tsx src/scripts/seed_db.ts",
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "tsc -p tsconfig.build.json",
     "start": "node dist/index.js"
@@ -19,7 +20,7 @@
     "cors": "^2.8.6",
     "dotenv": "^17.4.2",
     "express": "^5.2.1",
-    "ts-node": "^10.9.2"
+    "mysql2": "^3.22.5"
   },
   "devDependencies": {
     "@types/cors": "^2.8.19",

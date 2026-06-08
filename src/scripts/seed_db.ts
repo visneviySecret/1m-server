@@ -1,0 +1,61 @@
+import "dotenv/config";
+import { fileURLToPath } from "url";
+import { connectDatabase, getPool } from "../db.js";
+
+const ITEMS = 1_000_000;
+const BATCH_SIZE = 3000;
+
+const alphabet = Array.from({ length: 26 }, (_, i) =>
+  String.fromCharCode(65 + i)
+);
+
+export async function seedDatabase(): Promise<void> {
+  await connectDatabase();
+  const pool = getPool();
+
+  const [countRows] = await pool.query<{ count: number }[]>(
+    "SELECT COUNT(*) AS count FROM persons"
+  );
+  const existing = Number(countRows[0]?.count ?? 0);
+
+  if (existing > 0) {
+    console.log(`Seed skipped: ${existing} rows already exist`);
+    return;
+  }
+
+  const total = ITEMS - 1;
+
+  for (let batchStart = 0; batchStart < total; batchStart += BATCH_SIZE) {
+    const batchEnd = Math.min(batchStart + BATCH_SIZE, total);
+    const values: (number | string)[] = [];
+    const placeholders: string[] = [];
+
+    for (let i = 0; i < batchEnd - batchStart; i++) {
+      placeholders.push("(?, ?)");
+      values.push(
+        Math.trunc(Math.random() * 99 + 1),
+        alphabet[Math.trunc(Math.random() * alphabet.length)]!
+      );
+    }
+
+    await pool.execute(
+      `INSERT INTO persons (age, name) VALUES ${placeholders.join(", ")}`,
+      values
+    );
+
+    if (batchStart === 0 || (batchStart / BATCH_SIZE) % 10 === 0) {
+      console.log(`Progress: ${batchEnd} / ${total}`);
+    }
+  }
+
+  console.log(`Seed complete: ${total} rows`);
+}
+
+const isDirectRun = process.argv[1] === fileURLToPath(import.meta.url);
+
+if (isDirectRun) {
+  seedDatabase().catch((err) => {
+    console.error("Seed failed:", err);
+    process.exit(1);
+  });
+}

@@ -1,5 +1,8 @@
 import "dotenv/config";
+import { connectDatabase } from "./src/db.js";
 import app from "./src/app/app.js";
+
+await connectDatabase();
 
 const PORT = Number(process.env.PORT) || 5000;
 

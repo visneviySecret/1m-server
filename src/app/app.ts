@@ -1,6 +1,7 @@
 import express, { type Request, type Response } from "express";
 import cors from "cors";
 import { allowedOrigins } from "./config.js";
+import { getPool } from "../db.js";
 
 const app = express();
 
@@ -10,8 +11,21 @@ app.use(
   })
 );
 
-app.get("/", (req: Request, res: Response) => {
-  res.send("Hello from TypeScript Express !");
+app.get("/", async (req: Request, res: Response) => {
+  try {
+    const page = Math.max(1, Number(req.query.page) || 1);
+    const limit = Math.min(1000, Math.max(1, Number(req.query.limit) || 100));
+    const offset = (page - 1) * limit;
+
+    const [rows] = await getPool().query(
+      "SELECT id, age, name FROM persons ORDER BY id LIMIT ? OFFSET ?",
+      [limit, offset]
+    );
+
+    res.json(rows);
+  } catch {
+    res.status(500).json({ error: "Database not available" });
+  }
 });
 
 export default app;

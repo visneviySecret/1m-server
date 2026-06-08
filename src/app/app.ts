@@ -1,6 +1,6 @@
 import express, { type Request, type Response } from "express";
 import cors from "cors";
-import { allowedOrigins } from "./app/config.js";
+import { allowedOrigins } from "./config.js";
 
 const app = express();
 

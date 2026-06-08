@@ -1,6 +1,6 @@
 import "dotenv/config";
 import { fileURLToPath } from "url";
-import { connectDatabase, getPool } from "../db.js";
+import { connectDatabase, getPool } from "../database/db.ts";
 
 const ITEMS = 1_000_000;
 const BATCH_SIZE = 3000;

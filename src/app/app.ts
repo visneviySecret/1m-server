@@ -1,7 +1,7 @@
 import express, { type Request, type Response } from "express";
 import cors from "cors";
 import { allowedOrigins } from "./config.js";
-import { getPool } from "../db.js";
+import { getPool } from "../database/db.ts";
 
 const app = express();
 

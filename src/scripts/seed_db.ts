@@ -27,19 +27,20 @@ export async function seedDatabase(): Promise<void> {
 
   for (let batchStart = 0; batchStart < total; batchStart += BATCH_SIZE) {
     const batchEnd = Math.min(batchStart + BATCH_SIZE, total);
-    const values: (number | string)[] = [];
+    const values: (number | string | boolean)[] = [];
     const placeholders: string[] = [];
 
     for (let i = 0; i < batchEnd - batchStart; i++) {
-      placeholders.push("(?, ?)");
+      placeholders.push("(?, ?, ?)");
       values.push(
         Math.trunc(Math.random() * 99 + 1),
-        alphabet[Math.trunc(Math.random() * alphabet.length)]!
+        alphabet[Math.trunc(Math.random() * alphabet.length)]!,
+        false
       );
     }
 
-    await pool.execute(
-      `INSERT INTO persons (age, name) VALUES ${placeholders.join(", ")}`,
+    await pool.query(
+      `INSERT INTO persons (age, name, selected) VALUES ${placeholders.join(", ")}`,
       values
     );
 

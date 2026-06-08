@@ -18,7 +18,7 @@ app.get("/", async (req: Request, res: Response) => {
     const offset = (page - 1) * limit;
 
     const [rows] = await getPool().query(
-      "SELECT id, age, name FROM persons ORDER BY id LIMIT ? OFFSET ?",
+      "SELECT id, age, name, selected FROM persons ORDER BY id LIMIT ? OFFSET ?",
       [limit, offset]
     );
 

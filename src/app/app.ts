@@ -11,6 +11,7 @@ app.use(
     origin: allowedOrigins,
   })
 );
+app.use(express.json());
 
 app.use("/", appRouter);
 app.use(errorHandler);

@@ -1,7 +1,7 @@
 import { getPool } from "../../database/db.js";
 import type { PersonData, PersonsDataPage } from "./persons.types.js";
 
-export async function findPersonById(id: number): Promise<PersonData | null> {
+export async function findPersonById(id: string | number): Promise<PersonData | null> {
   const [rows] = await getPool().query(
     "SELECT id, age, name FROM persons WHERE id = ?",
     [id]
@@ -70,7 +70,7 @@ export async function findUnselectedPersons(
 }
 
 export async function insertPerson(
-  id: number,
+  id: string,
   age: number,
   name: string
 ): Promise<PersonData> {
@@ -79,5 +79,11 @@ export async function insertPerson(
     [id, age, name]
   );
 
-  return { id, age, name };
+  const person = await findPersonById(id);
+
+  if (!person) {
+    throw new Error("Failed to load created person");
+  }
+
+  return person;
 }

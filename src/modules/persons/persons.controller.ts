@@ -1,13 +1,13 @@
 import type { Request, Response } from "express";
-import { isDuplicateEntryError } from "../../share/lib/errors/isDuplicateEntryError.js";
-import { parsePersonsQuery } from "./lib/parsePersonsQuery.js";
 import {
-  createPerson,
-  getSelectedPersons as fetchSelectedPersons,
-  getUnselectedPersons as fetchUnselectedPersons,
-  reorderSelectedPersons,
-  updatePersonSelected,
-} from "./persons.service.js";
+  createPersonBatcher,
+  type CreatePersonBatchResult,
+} from "./batch/createPersonBatcher.js";
+import {
+  readUpdateBatcher,
+  type ReadUpdateResult,
+} from "./batch/readUpdateBatcher.js";
+import { parsePersonsQuery } from "./lib/parsePersonsQuery.js";
 
 function getPersonsQuery(req: Request) {
   return parsePersonsQuery({
@@ -17,14 +17,59 @@ function getPersonsQuery(req: Request) {
   });
 }
 
+function sendCreatePersonResult(
+  res: Response,
+  result: CreatePersonBatchResult
+) {
+  if (result.status === "created") {
+    res.status(201).json(result.person);
+    return;
+  }
+
+  if (result.status === "duplicate") {
+    res.status(409).json({ error: "Person with this id already exists" });
+    return;
+  }
+
+  res.status(500).json({ error: result.message });
+}
+
+function sendReadUpdateResult(res: Response, result: ReadUpdateResult) {
+  switch (result.type) {
+    case "getSelected":
+    case "getUnselected":
+      res.json(result.data);
+      return;
+    case "updateSelected":
+      if (!result.data) {
+        res.status(404).json({ error: "Person not found" });
+        return;
+      }
+
+      res.json(result.data);
+      return;
+    case "reorder":
+      res.status(204).send();
+      return;
+  }
+}
+
 export async function getUnselectedPersons(req: Request, res: Response) {
-  const persons = await fetchUnselectedPersons(getPersonsQuery(req));
-  res.json(persons);
+  const result = await readUpdateBatcher.run({
+    type: "getUnselected",
+    query: getPersonsQuery(req),
+  });
+
+  sendReadUpdateResult(res, result);
 }
 
 export async function getSelectedPersons(req: Request, res: Response) {
-  const persons = await fetchSelectedPersons(getPersonsQuery(req));
-  res.json(persons);
+  const result = await readUpdateBatcher.run({
+    type: "getSelected",
+    query: getPersonsQuery(req),
+  });
+
+  sendReadUpdateResult(res, result);
 }
 
 export async function patchPersonSelected(req: Request, res: Response) {
@@ -36,14 +81,12 @@ export async function patchPersonSelected(req: Request, res: Response) {
     return;
   }
 
-  const person = await updatePersonSelected({ id, selected });
+  const result = await readUpdateBatcher.run({
+    type: "updateSelected",
+    params: { id, selected },
+  });
 
-  if (!person) {
-    res.status(404).json({ error: "Person not found" });
-    return;
-  }
-
-  res.json(person);
+  sendReadUpdateResult(res, result);
 }
 
 export async function putSelectedPersonsOrder(req: Request, res: Response) {
@@ -58,30 +101,24 @@ export async function putSelectedPersonsOrder(req: Request, res: Response) {
     return;
   }
 
-  await reorderSelectedPersons({
-    ids: ids.map((id) => Number(id)),
+  const result = await readUpdateBatcher.run({
+    type: "reorder",
+    params: {
+      ids: ids.map((id) => Number(id)),
+    },
   });
 
-  res.status(204).send();
+  sendReadUpdateResult(res, result);
 }
 
 export async function postPerson(req: Request, res: Response) {
-  const id = Number(req.body?.id);
+  const id = req.body?.id;
 
-  if (Number.isNaN(id)) {
-    res.status(400).json({ error: "Invalid id" });
+  if (id == null || String(id).trim() === "") {
+    res.status(400).json({ error: "Id should't be empty" });
     return;
   }
 
-  try {
-    const person = await createPerson({ id });
-    res.status(201).json(person);
-  } catch (error) {
-    if (isDuplicateEntryError(error)) {
-      res.status(409).json({ error: "Person with this id already exists" });
-      return;
-    }
-
-    throw error;
-  }
+  const result = await createPersonBatcher.run({ id: String(id) });
+  sendCreatePersonResult(res, result);
 }

@@ -32,7 +32,7 @@ export type PersonsPage = {
 };
 
 export type CreatePersonParams = {
-  id: number;
+  id: string;
 };
 
 export type UpdatePersonSelectedParams = {

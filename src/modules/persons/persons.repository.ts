@@ -5,14 +5,14 @@ export async function findPersons(
   limit: number,
   offset: number,
   selected: boolean,
-  id?: number
+  id?: string
 ): Promise<PersonsPage> {
   const conditions = ["selected = ?"];
-  const params: (boolean | number)[] = [selected];
+  const params: (boolean | number | string)[] = [selected];
 
   if (id !== undefined) {
-    conditions.push("id = ?");
-    params.push(id);
+    conditions.push("CAST(id AS CHAR) LIKE ?");
+    params.push(`%${id}%`);
   }
 
   const [rows] = await getPool().query(

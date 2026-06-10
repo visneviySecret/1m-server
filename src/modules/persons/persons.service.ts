@@ -5,6 +5,8 @@ export async function getPersons(params: GetPersonsParams) {
   const page = Math.max(1, Number(params.page) || 1);
   const limit = Math.min(1000, Math.max(1, Number(params.limit) || 20));
   const offset = (page - 1) * limit;
+  const parsedId = Number(params.id);
+  const id = !Number.isNaN(parsedId) ? parsedId : undefined;
 
-  return findPersons(limit, offset, params.selected);
+  return findPersons(limit, offset, params.selected, id);
 }

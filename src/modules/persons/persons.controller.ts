@@ -9,6 +9,7 @@ async function getPersonsBySelected(
   const persons = await getPersons({
     page: req.query.page,
     limit: req.query.limit,
+    id: req.query.id,
     selected,
   });
   res.json(persons);

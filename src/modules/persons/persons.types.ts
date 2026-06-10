@@ -8,5 +8,11 @@ export type Person = {
 export type GetPersonsParams = {
   page?: unknown;
   limit?: unknown;
+  id?: unknown;
   selected: boolean;
+};
+
+export type PersonsPage = {
+  items: Person[];
+  hasNext: boolean;
 };

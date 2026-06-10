@@ -1,4 +1,5 @@
 import "dotenv/config";
+import type { RowDataPacket } from "mysql2";
 import { fileURLToPath } from "url";
 import { connectDatabase, getPool } from "../database/db.ts";
 import {
@@ -9,11 +10,15 @@ import {
 const ITEMS = 1_000_000;
 const BATCH_SIZE = 3000;
 
+type CountRow = RowDataPacket & {
+  count: number;
+};
+
 export async function seedDatabase(): Promise<void> {
   await connectDatabase();
   const pool = getPool();
 
-  const [countRows] = await pool.query<{ count: number }[]>(
+  const [countRows] = await pool.query<CountRow[]>(
     "SELECT COUNT(*) AS count FROM persons"
   );
   const existing = Number(countRows[0]?.count ?? 0);

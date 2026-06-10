@@ -1,28 +1,66 @@
 import { getPool } from "../../database/db.js";
-import type { Person, PersonsPage } from "./persons.types.js";
+import type { PersonData, PersonsDataPage } from "./persons.types.js";
 
-export async function findPersons(
+export async function findPersonById(id: number): Promise<PersonData | null> {
+  const [rows] = await getPool().query(
+    "SELECT id, age, name FROM persons WHERE id = ?",
+    [id]
+  );
+  const person = (rows as PersonData[])[0];
+
+  if (!person) {
+    return null;
+  }
+
+  return person;
+}
+
+export async function findPersonsByIds(ids: number[]): Promise<PersonData[]> {
+  if (ids.length === 0) {
+    return [];
+  }
+
+  const [rows] = await getPool().query(
+    `SELECT id, age, name FROM persons WHERE id IN (${ids.map(() => "?").join(", ")})`,
+    ids
+  );
+  const personsMap = new Map(
+    (rows as PersonData[]).map((person) => [person.id, person])
+  );
+
+  return ids
+    .map((id) => personsMap.get(id))
+    .filter((person): person is PersonData => person !== undefined);
+}
+
+export async function findUnselectedPersons(
   limit: number,
   offset: number,
-  selected: boolean,
+  excludedIds: number[],
   id?: string
-): Promise<PersonsPage> {
-  const conditions = ["selected = ?"];
-  const params: (boolean | number | string)[] = [selected];
+): Promise<PersonsDataPage> {
+  const conditions: string[] = [];
+  const params: (number | string)[] = [];
+
+  if (excludedIds.length > 0) {
+    conditions.push(`id NOT IN (${excludedIds.map(() => "?").join(", ")})`);
+    params.push(...excludedIds);
+  }
 
   if (id !== undefined) {
     conditions.push("CAST(id AS CHAR) LIKE ?");
     params.push(`%${id}%`);
   }
 
+  const whereClause =
+    conditions.length > 0 ? `WHERE ${conditions.join(" AND ")}` : "";
+
   const [rows] = await getPool().query(
-    `SELECT id, age, name, selected FROM persons WHERE ${conditions.join(
-      " AND "
-    )} ORDER BY id LIMIT ? OFFSET ?`,
+    `SELECT id, age, name FROM persons ${whereClause} ORDER BY id LIMIT ? OFFSET ?`,
     [...params, limit + 1, offset]
   );
 
-  const persons = rows as Person[];
+  const persons = rows as PersonData[];
   const hasNext = persons.length > limit;
 
   return {
@@ -35,41 +73,11 @@ export async function insertPerson(
   id: number,
   age: number,
   name: string
-): Promise<Person> {
+): Promise<PersonData> {
   await getPool().query(
-    "INSERT INTO persons (id, age, name, selected) VALUES (?, ?, ?, false)",
+    "INSERT INTO persons (id, age, name) VALUES (?, ?, ?)",
     [id, age, name]
   );
 
-  return { id, age, name, selected: false };
-}
-
-export async function updatePersonSelected(
-  id: number,
-  selected: boolean
-): Promise<Person | null> {
-  const [updateResult] = await getPool().query(
-    "UPDATE persons SET selected = ? WHERE id = ?",
-    [selected, id]
-  );
-  const affectedRows = (updateResult as { affectedRows: number }).affectedRows;
-
-  if (!affectedRows) {
-    return null;
-  }
-
-  const [rows] = await getPool().query(
-    "SELECT id, age, name, selected FROM persons WHERE id = ?",
-    [id]
-  );
-  const person = (rows as Person[])[0];
-
-  if (!person) {
-    return null;
-  }
-
-  return {
-    ...person,
-    selected: Boolean(person.selected),
-  };
+  return { id, age, name };
 }

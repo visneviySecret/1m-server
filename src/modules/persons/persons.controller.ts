@@ -1,31 +1,30 @@
 import type { Request, Response } from "express";
 import { isDuplicateEntryError } from "../../share/lib/errors/isDuplicateEntryError.js";
+import { parsePersonsQuery } from "./lib/parsePersonsQuery.js";
 import {
   createPerson,
-  getPersons,
+  getSelectedPersons as fetchSelectedPersons,
+  getUnselectedPersons as fetchUnselectedPersons,
+  reorderSelectedPersons,
   updatePersonSelected,
 } from "./persons.service.js";
 
-async function getPersonsBySelected(
-  req: Request,
-  res: Response,
-  selected: boolean
-) {
-  const persons = await getPersons({
+function getPersonsQuery(req: Request) {
+  return parsePersonsQuery({
     page: req.query.page,
     limit: req.query.limit,
     id: req.query.id,
-    selected,
   });
-  res.json(persons);
 }
 
 export async function getUnselectedPersons(req: Request, res: Response) {
-  await getPersonsBySelected(req, res, false);
+  const persons = await fetchUnselectedPersons(getPersonsQuery(req));
+  res.json(persons);
 }
 
 export async function getSelectedPersons(req: Request, res: Response) {
-  await getPersonsBySelected(req, res, true);
+  const persons = await fetchSelectedPersons(getPersonsQuery(req));
+  res.json(persons);
 }
 
 export async function patchPersonSelected(req: Request, res: Response) {
@@ -45,6 +44,25 @@ export async function patchPersonSelected(req: Request, res: Response) {
   }
 
   res.json(person);
+}
+
+export async function putSelectedPersonsOrder(req: Request, res: Response) {
+  const ids = req.body?.ids;
+
+  if (
+    !Array.isArray(ids) ||
+    ids.length === 0 ||
+    ids.some((id) => Number.isNaN(Number(id)))
+  ) {
+    res.status(400).json({ error: "Invalid ids" });
+    return;
+  }
+
+  await reorderSelectedPersons({
+    ids: ids.map((id) => Number(id)),
+  });
+
+  res.status(204).send();
 }
 
 export async function postPerson(req: Request, res: Response) {

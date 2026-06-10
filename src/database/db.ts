@@ -23,8 +23,7 @@ export async function connectDatabase(): Promise<void> {
     CREATE TABLE IF NOT EXISTS persons (
       id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
       age INT NOT NULL,
-      name VARCHAR(10) NOT NULL,
-      selected BOOLEAN NOT NULL DEFAULT FALSE
+      name VARCHAR(10) NOT NULL
     )
   `);
 }

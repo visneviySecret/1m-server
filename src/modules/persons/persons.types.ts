@@ -1,15 +1,29 @@
-export type Person = {
+export type PersonData = {
   id: number;
   age: number;
   name: string;
+};
+
+export type Person = PersonData & {
   selected: boolean;
 };
 
-export type GetPersonsParams = {
+export type PersonsQueryParams = {
   page?: unknown;
   limit?: unknown;
   id?: unknown;
-  selected: boolean;
+};
+
+export type ParsedPersonsQuery = {
+  page: number;
+  limit: number;
+  offset: number;
+  id?: string;
+};
+
+export type PersonsDataPage = {
+  items: PersonData[];
+  hasNext: boolean;
 };
 
 export type PersonsPage = {
@@ -24,4 +38,8 @@ export type CreatePersonParams = {
 export type UpdatePersonSelectedParams = {
   id: number;
   selected: boolean;
+};
+
+export type ReorderSelectedPersonsParams = {
+  ids: number[];
 };

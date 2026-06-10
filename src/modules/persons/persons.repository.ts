@@ -41,3 +41,33 @@ export async function insertPerson(
 
   return { id, age, name, selected: false };
 }
+
+export async function updatePersonSelected(
+  id: number,
+  selected: boolean
+): Promise<Person | null> {
+  const [updateResult] = await getPool().query(
+    "UPDATE persons SET selected = ? WHERE id = ?",
+    [selected, id]
+  );
+  const affectedRows = (updateResult as { affectedRows: number }).affectedRows;
+
+  if (!affectedRows) {
+    return null;
+  }
+
+  const [rows] = await getPool().query(
+    "SELECT id, age, name, selected FROM persons WHERE id = ?",
+    [id]
+  );
+  const person = (rows as Person[])[0];
+
+  if (!person) {
+    return null;
+  }
+
+  return {
+    ...person,
+    selected: Boolean(person.selected),
+  };
+}

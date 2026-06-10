@@ -20,3 +20,8 @@ export type PersonsPage = {
 export type CreatePersonParams = {
   id: number;
 };
+
+export type UpdatePersonSelectedParams = {
+  id: number;
+  selected: boolean;
+};

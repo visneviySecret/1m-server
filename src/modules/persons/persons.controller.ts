@@ -15,7 +15,6 @@ async function getPersonsBySelected(
     page: req.query.page,
     limit: req.query.limit,
     id: req.query.id,
-    sort: req.query.sort,
     selected,
   });
   res.json(persons);

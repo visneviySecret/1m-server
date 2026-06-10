@@ -6,5 +6,5 @@ export function errorHandler(
   res: Response,
   _next: NextFunction
 ) {
-  res.status(500).json({ error: "Database not available" });
+  res.status(500).json({ error: "Internal server error" });
 }

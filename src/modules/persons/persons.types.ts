@@ -16,3 +16,7 @@ export type PersonsPage = {
   items: Person[];
   hasNext: boolean;
 };
+
+export type CreatePersonParams = {
+  id: number;
+};

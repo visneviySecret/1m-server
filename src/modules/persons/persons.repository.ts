@@ -28,3 +28,16 @@ export async function findPersons(
     hasNext,
   };
 }
+
+export async function insertPerson(
+  id: number,
+  age: number,
+  name: string
+): Promise<Person> {
+  await getPool().query(
+    "INSERT INTO persons (id, age, name, selected) VALUES (?, ?, ?, false)",
+    [id, age, name]
+  );
+
+  return { id, age, name, selected: false };
+}

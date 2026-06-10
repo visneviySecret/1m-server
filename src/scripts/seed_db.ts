@@ -1,13 +1,13 @@
 import "dotenv/config";
 import { fileURLToPath } from "url";
 import { connectDatabase, getPool } from "../database/db.ts";
+import {
+  generatePersonAge,
+  generatePersonName,
+} from "../share/lib/generatePersonFields.ts";
 
 const ITEMS = 1_000_000;
 const BATCH_SIZE = 3000;
-
-const alphabet = Array.from({ length: 26 }, (_, i) =>
-  String.fromCharCode(65 + i)
-);
 
 export async function seedDatabase(): Promise<void> {
   await connectDatabase();
@@ -32,11 +32,7 @@ export async function seedDatabase(): Promise<void> {
 
     for (let i = 0; i < batchEnd - batchStart; i++) {
       placeholders.push("(?, ?, ?)");
-      values.push(
-        Math.trunc(Math.random() * 99 + 1),
-        alphabet[Math.trunc(Math.random() * alphabet.length)]!,
-        false
-      );
+      values.push(generatePersonAge(), generatePersonName(), false);
     }
 
     await pool.query(

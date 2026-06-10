@@ -1,5 +1,12 @@
-import { findPersons } from "./persons.repository.js";
-import type { GetPersonsParams } from "./persons.types.js";
+import { generatePersonFields } from "../../share/lib/generatePersonFields.js";
+import { findPersons, insertPerson } from "./persons.repository.js";
+import type { CreatePersonParams, GetPersonsParams } from "./persons.types.js";
+
+export async function createPerson(params: CreatePersonParams) {
+  const { age, name } = generatePersonFields();
+
+  return insertPerson(params.id, age, name);
+}
 
 export async function getPersons(params: GetPersonsParams) {
   const page = Math.max(1, Number(params.page) || 1);

@@ -5,10 +5,13 @@ export type Person = {
   selected: boolean;
 };
 
+export type SortOrder = "asc" | "desc";
+
 export type GetPersonsParams = {
   page?: unknown;
   limit?: unknown;
   id?: unknown;
+  sort?: unknown;
   selected: boolean;
 };
 

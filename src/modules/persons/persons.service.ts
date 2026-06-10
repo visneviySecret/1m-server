@@ -1,4 +1,5 @@
 import { generatePersonFields } from "../../share/lib/generatePersonFields.js";
+import { parseSortOrder } from "../../share/lib/parseSortOrder.js";
 import {
   findPersons,
   insertPerson,
@@ -31,5 +32,7 @@ export async function getPersons(params: GetPersonsParams) {
       ? String(params.id).trim()
       : undefined;
 
-  return findPersons(limit, offset, params.selected, id);
+  const sort = parseSortOrder(params.sort);
+
+  return findPersons(limit, offset, params.selected, id, sort);
 }

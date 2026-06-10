@@ -1,11 +1,12 @@
 import { getPool } from "../../database/db.js";
-import type { Person, PersonsPage } from "./persons.types.js";
+import type { Person, PersonsPage, SortOrder } from "./persons.types.js";
 
 export async function findPersons(
   limit: number,
   offset: number,
   selected: boolean,
-  id?: string
+  id?: string,
+  sort: SortOrder = "asc"
 ): Promise<PersonsPage> {
   const conditions = ["selected = ?"];
   const params: (boolean | number | string)[] = [selected];
@@ -15,8 +16,12 @@ export async function findPersons(
     params.push(`%${id}%`);
   }
 
+  const orderDirection = sort === "desc" ? "DESC" : "ASC";
+
   const [rows] = await getPool().query(
-    `SELECT id, age, name, selected FROM persons WHERE ${conditions.join(" AND ")} ORDER BY id LIMIT ? OFFSET ?`,
+    `SELECT id, age, name, selected FROM persons WHERE ${conditions.join(
+      " AND "
+    )} ORDER BY id ${orderDirection} LIMIT ? OFFSET ?`,
     [...params, limit + 1, offset]
   );
 

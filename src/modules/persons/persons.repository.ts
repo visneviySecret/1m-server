@@ -1,7 +1,7 @@
 import { getPool } from "../../database/db.js";
 import type { PersonData, PersonsDataPage } from "./persons.types.js";
 
-export async function findPersonById(id: string | number): Promise<PersonData | null> {
+export async function findPersonById(id: string): Promise<PersonData | null> {
   const [rows] = await getPool().query(
     "SELECT id, age, name FROM persons WHERE id = ?",
     [id]
@@ -15,7 +15,7 @@ export async function findPersonById(id: string | number): Promise<PersonData | 
   return person;
 }
 
-export async function findPersonsByIds(ids: number[]): Promise<PersonData[]> {
+export async function findPersonsByIds(ids: string[]): Promise<PersonData[]> {
   if (ids.length === 0) {
     return [];
   }
@@ -36,7 +36,7 @@ export async function findPersonsByIds(ids: number[]): Promise<PersonData[]> {
 export async function findUnselectedPersons(
   limit: number,
   offset: number,
-  excludedIds: number[],
+  excludedIds: string[],
   id?: string
 ): Promise<PersonsDataPage> {
   const conditions: string[] = [];
@@ -48,7 +48,7 @@ export async function findUnselectedPersons(
   }
 
   if (id !== undefined) {
-    conditions.push("CAST(id AS CHAR) LIKE ?");
+    conditions.push("id LIKE ?");
     params.push(`%${id}%`);
   }
 
@@ -56,7 +56,7 @@ export async function findUnselectedPersons(
     conditions.length > 0 ? `WHERE ${conditions.join(" AND ")}` : "";
 
   const [rows] = await getPool().query(
-    `SELECT id, age, name FROM persons ${whereClause} ORDER BY id LIMIT ? OFFSET ?`,
+    `SELECT id, age, name FROM persons ${whereClause} ORDER BY id + 0, id LIMIT ? OFFSET ?`,
     [...params, limit + 1, offset]
   );
 

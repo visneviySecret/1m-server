@@ -1,5 +1,5 @@
 export type PersonData = {
-  id: number;
+  id: string;
   age: number;
   name: string;
 };
@@ -36,10 +36,10 @@ export type CreatePersonParams = {
 };
 
 export type UpdatePersonSelectedParams = {
-  id: number;
+  id: string;
   selected: boolean;
 };
 
 export type ReorderSelectedPersonsParams = {
-  ids: number[];
+  ids: string[];
 };

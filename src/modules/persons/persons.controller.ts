@@ -73,10 +73,10 @@ export async function getSelectedPersons(req: Request, res: Response) {
 }
 
 export async function patchPersonSelected(req: Request, res: Response) {
-  const id = Number(req.params.id);
+  const id = req.params.id;
   const selected = req.body?.selected;
 
-  if (Number.isNaN(id) || typeof selected !== "boolean") {
+  if (typeof id !== "string" || id.trim() === "" || typeof selected !== "boolean") {
     res.status(400).json({ error: "Invalid id or selected status" });
     return;
   }
@@ -95,7 +95,7 @@ export async function putSelectedPersonsOrder(req: Request, res: Response) {
   if (
     !Array.isArray(ids) ||
     ids.length === 0 ||
-    ids.some((id) => Number.isNaN(Number(id)))
+    ids.some((id) => String(id).trim() === "")
   ) {
     res.status(400).json({ error: "Invalid ids" });
     return;
@@ -104,7 +104,7 @@ export async function putSelectedPersonsOrder(req: Request, res: Response) {
   const result = await readUpdateBatcher.run({
     type: "reorder",
     params: {
-      ids: ids.map((id) => Number(id)),
+      ids: ids.map((id) => String(id)),
     },
   });
 

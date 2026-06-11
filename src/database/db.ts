@@ -21,7 +21,7 @@ export async function connectDatabase(): Promise<void> {
   const db = getPool();
   await db.execute(`
     CREATE TABLE IF NOT EXISTS persons (
-      id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+      id VARCHAR(64) NOT NULL PRIMARY KEY,
       age INT NOT NULL,
       name VARCHAR(10) NOT NULL
     )

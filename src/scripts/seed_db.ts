@@ -37,7 +37,11 @@ export async function seedDatabase(): Promise<void> {
 
     for (let i = 0; i < batchEnd - batchStart; i++) {
       placeholders.push("(?, ?, ?)");
-      values.push(String(batchStart + i + 1), generatePersonAge(), generatePersonName());
+      values.push(
+        String(batchStart + i + 1),
+        generatePersonAge(),
+        generatePersonName()
+      );
     }
 
     await pool.query(

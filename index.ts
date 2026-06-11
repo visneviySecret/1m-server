@@ -1,6 +1,6 @@
 import "dotenv/config";
 import { connectDatabase } from "./src/database/db.ts";
-import app from "./src/app/app.js";
+import app from "./src/app/app.ts";
 
 await connectDatabase();
 

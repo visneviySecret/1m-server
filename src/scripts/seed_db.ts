@@ -36,12 +36,12 @@ export async function seedDatabase(): Promise<void> {
     const placeholders: string[] = [];
 
     for (let i = 0; i < batchEnd - batchStart; i++) {
-      placeholders.push("(?, ?)");
-      values.push(generatePersonAge(), generatePersonName());
+      placeholders.push("(?, ?, ?)");
+      values.push(String(batchStart + i + 1), generatePersonAge(), generatePersonName());
     }
 
     await pool.query(
-      `INSERT INTO persons (age, name) VALUES ${placeholders.join(", ")}`,
+      `INSERT INTO persons (id, age, name) VALUES ${placeholders.join(", ")}`,
       values
     );
 

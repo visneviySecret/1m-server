@@ -1,7 +1,7 @@
-export function filterIdsBySearch(ids: number[], search?: string) {
+export function filterIdsBySearch(ids: string[], search?: string) {
   if (search === undefined) {
     return ids;
   }
 
-  return ids.filter((id) => String(id).includes(search));
+  return ids.filter((id) => id.includes(search));
 }

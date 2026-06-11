@@ -1,10 +1,10 @@
-const selectedOrder: number[] = [];
+const selectedOrder: string[] = [];
 
 export function getSelectedOrder() {
   return [...selectedOrder];
 }
 
-export function setSelected(id: number, selected: boolean) {
+export function setSelected(id: string, selected: boolean) {
   if (selected) {
     if (!selectedOrder.includes(id)) {
       selectedOrder.push(id);
@@ -19,7 +19,7 @@ export function setSelected(id: number, selected: boolean) {
   }
 }
 
-export function reorderSelected(ids: number[]) {
+export function reorderSelected(ids: string[]) {
   const selectedSet = new Set(selectedOrder);
   const nextOrder = ids.filter((id) => selectedSet.has(id));
   const remaining = selectedOrder.filter((id) => !nextOrder.includes(id));

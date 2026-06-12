@@ -8,6 +8,7 @@ import {
   reorderSelectedPersons,
   updatePersonSelected,
 } from "./persons.service.js";
+import { batch } from "../../share/lib/batch.js";
 
 function getPersonsQuery(req: Request) {
   return parsePersonsQuery({
@@ -31,7 +32,11 @@ export async function patchPersonSelected(req: Request, res: Response) {
   const id = req.params.id;
   const selected = req.body?.selected;
 
-  if (typeof id !== "string" || id.trim() === "" || typeof selected !== "boolean") {
+  if (
+    typeof id !== "string" ||
+    id.trim() === "" ||
+    typeof selected !== "boolean"
+  ) {
     res.status(400).json({ error: "Invalid id or selected status" });
     return;
   }
@@ -65,7 +70,11 @@ export async function putSelectedPersonsOrder(req: Request, res: Response) {
   res.status(204).send();
 }
 
-export async function postPerson(req: Request, res: Response) {
+export async function postPersonHandler(req: Request, res: Response) {
+  await batch(() => postPerson(req, res));
+}
+
+async function postPerson(req: Request, res: Response) {
   const id = req.body?.id;
 
   if (id == null || String(id).trim() === "") {
@@ -81,9 +90,5 @@ export async function postPerson(req: Request, res: Response) {
       res.status(409).json({ error: "Person with this id already exists" });
       return;
     }
-
-    const message =
-      error instanceof Error ? error.message : "Failed to create person";
-    res.status(500).json({ error: message });
   }
 }

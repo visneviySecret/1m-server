@@ -1,8 +1,8 @@
 import { Router } from "express";
 import { asyncHandler } from "../../middleware/asyncHandler.js";
 import {
-  getSelectedPersons,
-  getUnselectedPersons,
+  getSelectedPersonsHandler,
+  getUnselectedPersonsHandler,
   patchPersonSelected,
   postPerson,
   putSelectedPersonsOrder,
@@ -10,8 +10,8 @@ import {
 
 export const personsRouter = Router();
 
-personsRouter.get("/persons/unselected", asyncHandler(getUnselectedPersons));
-personsRouter.get("/persons/selected", asyncHandler(getSelectedPersons));
+personsRouter.get("/persons/unselected", asyncHandler(getUnselectedPersonsHandler));
+personsRouter.get("/persons/selected", asyncHandler(getSelectedPersonsHandler));
 personsRouter.put(
   "/persons/selected/order",
   asyncHandler(putSelectedPersonsOrder)
